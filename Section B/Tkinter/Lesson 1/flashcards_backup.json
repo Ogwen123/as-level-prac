@@ -1,0 +1,18 @@
+[
+    {
+        "name": "ALU",
+        "text": "The ALU is the Arithmetic Logic Unit. It is the part of the cpu that handles mathematic and logical operations. It is the part that does the execute stage of the fetch-decode-execute cycle."
+    },
+    {
+        "name": "Cache",
+        "text": "Cache is extremely fast memory in the CPU that acts as an intermediary to stop bottlenecking from the slow, reletive to the CPU's speed, speed of the RAM. It stores recent and frequently used instructions."
+    },
+    {
+        "name": "Regsiters",
+        "text": "There are 5 Registers in the CPU. They are the Program Counter, Accumulator, Memory Address Register, Memory Data Register and Current Instruction Register. Registers hold important information during the fetch-decode-execute cycle."
+    },
+    {
+        "name": "CU",
+        "text": "The control unit controls the rest of the PC components and does the decode stage of the fetch-decode-execute cycle."
+    }
+]
