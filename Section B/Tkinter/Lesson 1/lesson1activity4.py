@@ -32,10 +32,12 @@ def edit_button():
     if text1["state"] == "normal":#locking the card
         text1.config(state="disabled")
         button_edit.config(text="Edit Card")
+        button_edit.config(bg="#87AE73")
         update_json()
     elif text1["state"] == "disabled":#making the card editable
         text1.config(state="normal")
         button_edit.config(text="Lock Card")
+        button_edit.config(bg="#FF6961")
 
 
 def lock_edit():
@@ -65,10 +67,8 @@ def button_click(type):
     #print(type)
     if text1.get(0.0, END).strip() == text_data[current_text]["text"].strip():
         current_text = type
-        print("same")
         change_text(type)
     else:
-        print("diff")
         update_json()
         current_text = type
         change_text(type)
@@ -103,7 +103,7 @@ button_edit = Button(
     window,
     width = 10,
     text = "Edit Card",
-    bg="white",
+    bg="#87AE73",
     highlightcolor="black", 
     highlightthickness=2,
     command=lambda: edit_button()
