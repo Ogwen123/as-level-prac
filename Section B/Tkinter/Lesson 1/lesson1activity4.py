@@ -73,7 +73,7 @@ def button_click(type):
         current_text = type
         change_text(type)
         if text1["state"] == "disabled":
-            lock_edit()
+            lock_edit()#makes the card read only and changes the text on the edit button
 
     
 
