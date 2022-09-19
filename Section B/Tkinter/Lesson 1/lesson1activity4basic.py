@@ -1,4 +1,3 @@
-
 from tkinter import *
 import json
 import os
