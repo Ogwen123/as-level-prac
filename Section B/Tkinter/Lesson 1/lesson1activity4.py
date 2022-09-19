@@ -62,9 +62,6 @@ def change_text(type):
 
 def button_click(type):
     global current_text
-    #print(text1.get(0.0, END))
-    #print(text_data[type]["text"])
-    #print(type)
     if text1.get(0.0, END).strip() == text_data[current_text]["text"].strip():
         current_text = type
         change_text(type)
@@ -76,6 +73,20 @@ def button_click(type):
             lock_edit()#makes the card read only and changes the text on the edit button
 
     
+def render_window():
+    #dynamically load the buttons
+    for i in range(len(text_data)):
+        button_card = Button(
+            window,
+            width=8,
+            text=text_data[i]["name"],
+            bg="white",
+            highlightcolor="black", 
+            highlightthickness=2,
+            command=lambda i=i: button_click(i)
+        )
+        button_card.grid(row=i, column=0, sticky=NW)
+
 
 text1 = Text(
     window, 
@@ -86,18 +97,7 @@ text1 = Text(
     highlightthickness=1)
 text1.grid(row=0, column=1, rowspan=3, sticky=E, padx=(100, 10))
 
-#dynamically load the buttons
-for i in range(len(text_data)):
-    button_card = Button(
-        window,
-        width=8,
-        text=text_data[i]["name"],
-        bg="white",
-        highlightcolor="black", 
-        highlightthickness=2,
-        command=lambda i=i: button_click(i)
-    )
-    button_card.grid(row=i, column=0, sticky=NW)
+render_window()
 
 button_edit = Button(
     window,
