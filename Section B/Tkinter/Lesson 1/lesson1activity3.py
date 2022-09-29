@@ -1,5 +1,4 @@
 from tkinter import *
-from turtle import st
 
 window = Tk()
 

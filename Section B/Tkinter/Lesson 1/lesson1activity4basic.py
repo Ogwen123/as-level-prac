@@ -22,7 +22,7 @@ name_data = [
 ]
 
 def button_click(type):
-    text1.config(state="normal")#allows the text bow to be changed
+    text1.config(state="normal")#allows the text box to be changed
     text1.delete(0.0, END)
     text1.insert(END, text_data[type])
     text1.config(state="disabled")#makes the text box read only so it cannot be edited in the GUI
