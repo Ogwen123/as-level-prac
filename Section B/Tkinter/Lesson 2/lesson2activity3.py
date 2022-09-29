@@ -13,14 +13,6 @@ with open(script_dir + "./definitions.json", "r") as read_file:
     dictionary = json.load(read_file)
     read_file.close()
 
-#reload the definitions dict when the external file is changed
-#def statusreload_json():
-#    with open(script_dir + "./definitions.json", "r") as reload_read_file:
-#        global dictionary
-#        print(f"this {reload_read_file}")
-#        dictionary = json.load(reload_read_file)
-#        reload_read_file.close()
-
 #this functions is run when the button is pressed
 def button_click():
     definition = ""
@@ -126,12 +118,7 @@ label1.grid(row=0, column=0)
 entry1 = Entry(window)
 entry1.grid(row=1, column=0, pady=5, padx=35, sticky=W)
 
-button1 = Button(
-    window, 
-    text="Enter", 
-    command=button_click, 
-    highlightcolor="black", 
-    highlightthickness=2)
+button1 = Button(window, text="Enter", command=button_click, bg="#A2E9FF")
 button1.grid(row=1, column=0, pady=5, padx=35, sticky=E)
 
 search_status_label = Label(window, text="", fg="red")
@@ -140,7 +127,7 @@ search_status_label.grid(row=2, column=0)
 label2 = Label(window, text="Definition: ")
 label2.grid(row=3, column=0, sticky=S, padx=20)
 
-text1 = Text(window, width="25", height="10")
+text1 = Text(window, width="25", height="9")
 text1.grid(row=4, column=0, rowspan=2, pady=10, padx=20)
 
 #add key/value to the dict
@@ -170,7 +157,7 @@ delete_entry = Entry(window)
 delete_entry.grid(row=5, column=1, sticky=N)
 
 delete_button = Button(window, text="Delete Word", bg="#FF6961", command=delete_key_value)
-delete_button.grid(row=5, column=1, pady=5)
+delete_button.grid(row=5, column=1, pady=3)
 
 delete_status_label = Label(window, text="", fg="red")
 delete_status_label.grid(row=5, column=1, sticky=S)
