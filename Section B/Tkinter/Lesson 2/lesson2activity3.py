@@ -112,7 +112,7 @@ def change_delete_status_label(error_text, colour):
 
 
 #use the dictionary
-label1 = Label(window, text="Enter your acronym here: ")
+label1 = Label(window, text="Enter your word here: ")
 label1.grid(row=0, column=0)
 
 entry1 = Entry(window)
@@ -127,7 +127,7 @@ search_status_label.grid(row=2, column=0)
 label2 = Label(window, text="Definition: ")
 label2.grid(row=3, column=0, sticky=S, padx=20)
 
-text1 = Text(window, width="25", height="9")
+text1 = Text(window, width="25", height="9", wrap=WORD)
 text1.grid(row=4, column=0, rowspan=2, pady=10, padx=20)
 
 #add key/value to the dict

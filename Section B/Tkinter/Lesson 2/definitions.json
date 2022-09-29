@@ -1,1 +1,1 @@
-{"alu": "Arithmetic Logic Unit", "cu": "Control Unit", "cpu": "Central Processing Unit", "ram": "Random Access Memory", "gpu": "Graphics Processing Unit", "psu": "Power Supply Unit", "hola": "hello in spanish", "hi": "hello"}
+{"alu": "Arithmetic Logic Unit", "cu": "Control Unit", "cpu": "Central Processing Unit", "ram": "Random Access Memory", "gpu": "Graphics Processing Unit", "psu": "Power Supply Unit", "hola": "hello in spanish", "hi": "hello", "registers": "Registers are vital components of the fetch-decode-execute cycle."}

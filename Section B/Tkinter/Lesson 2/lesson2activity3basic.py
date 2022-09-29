@@ -2,7 +2,6 @@ from tkinter import *
 
 window = Tk()
 window.title("Dictionary Program")
-window.geometry("400x300")
 
 dictionary = {
     "ALU": "Arithmatic Logic Unit",
