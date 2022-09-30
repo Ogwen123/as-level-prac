@@ -7,7 +7,7 @@ window = Tk()
 window.title("Dictionary Program")
 
 dictionary = {}
-script_dir = os.path.dirname(os.path.abspath(__file__))
+script_dir = os.path.dirname(os.path.abspath(__file__))#gets the current directory of the script
 
 with open(script_dir + "./definitions.json", "r") as read_file:
     dictionary = json.load(read_file)
@@ -40,8 +40,8 @@ def add_key_value():
         word_entry.delete(0, END)
         definition_entry.delete(0, END)
 
-    word_entry_text = word_entry.get().lower()
-    def_entry_text = definition_entry.get()
+    word_entry_text = word_entry.get().lower().strip()
+    def_entry_text = definition_entry.get().strip()
 
     if not word_entry_text or not def_entry_text:
         change_add_status_label("You cannot leave the boxes empty!", "red")
@@ -96,9 +96,9 @@ def delete_key_value():
 
 #change error labels
 def change_search_status_label(error_text, colour):
-    search_status_label.config(fg=colour)
-    search_status_label.config(text=error_text)
-    search_status_label.after(4000, lambda: search_status_label.config(text=""))
+    search_status_label.config(fg=colour)#changes the text colour of the label
+    search_status_label.config(text=error_text)#sets the text in the label
+    search_status_label.after(4000, lambda: search_status_label.config(text=""))#makes the label disapear after 4 seconds
         
 def change_add_status_label(error_text, colour):
     add_status_label.config(fg=colour)
