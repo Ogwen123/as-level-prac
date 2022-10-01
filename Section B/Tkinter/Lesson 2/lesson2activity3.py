@@ -55,13 +55,11 @@ def add_key_value():
 
     clear_add_entry()
 
-    #print(f"{word_entry_text}:{def_entry_text}")
     temp_dict = {word_entry_text: def_entry_text}
     dictionary.update(temp_dict)
 
     with open(script_dir + "./definitions.json", "w") as write_file:
         json.dump(dictionary, write_file)
-        #reload_json()
         write_file.close()
     temp_dict = {}
 
@@ -89,7 +87,6 @@ def delete_key_value():
 
     with open(script_dir + "./definitions.json", "w") as write_file:
         json.dump(dictionary, write_file)
-        #reload_json()
         write_file.close()
     
     change_delete_status_label("Deleted Word", "green")
