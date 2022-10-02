@@ -17,6 +17,7 @@ with open(script_dir + "./definitions.json", "r") as read_file:
     dictionary = json.load(read_file)
     read_file.close()
 
+
 #this functions is run when the button is pressed
 def search_dict():
     definition = ""
@@ -48,6 +49,8 @@ def search_dict():
     defintion_textbox.insert(END, definition)
     defintion_textbox.config(state="disabled")
 
+
+
 def add_key_value():
     def clear_add_entry():
         word_entry.delete(0, END)
@@ -78,6 +81,8 @@ def add_key_value():
 
     change_add_status_label("Added Word", "green")
 
+
+
 def delete_key_value():
     def clear_delete_entry():
         delete_entry.delete(0, END)
@@ -104,6 +109,8 @@ def delete_key_value():
     
     change_delete_status_label("Deleted Word", "green")
 
+
+
 def save_textbox():
     dictionary[current_word] = defintion_textbox.get(0.0, END)
         
@@ -112,6 +119,8 @@ def save_textbox():
         write_file.close()
     
     change_edit_definition_status_label("Saved new definition!", "green")
+
+
 
 def edit_definition():
     if not current_word:
@@ -129,6 +138,7 @@ def edit_definition():
         edit_button.config(bg="light blue")
 
         save_textbox()
+
 
 
 #change error labels
