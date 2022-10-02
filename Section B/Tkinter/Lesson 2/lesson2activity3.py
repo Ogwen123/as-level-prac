@@ -1,10 +1,13 @@
 from tkinter import *
+from tkinter import scrolledtext as tkscrolled
 import json
 import os
 import time
 
 window = Tk()
 window.title("Dictionary Program")
+window.resizable(False, False)
+#window.configure(bg="black")
 
 dictionary = {}
 script_dir = os.path.dirname(os.path.abspath(__file__))#gets the current directory of the script
@@ -17,7 +20,7 @@ with open(script_dir + "./definitions.json", "r") as read_file:
 #this functions is run when the button is pressed
 def search_dict():
     definition = ""
-    entry_text = entry1.get()
+    entry_text = search_entry.get()
     global current_word
 
     if defintion_textbox["state"] == "normal":
@@ -30,14 +33,16 @@ def search_dict():
         change_search_status_label("You must enter a value!", "red")
         return
 
-    entry1.delete(0, END)
+    search_entry.delete(0, END)
     try:
         global dictionary
         definition = dictionary[entry_text.lower()]
     except KeyError:
         change_search_status_label("This value is not in the dictionary!", "red")
         return
-    global text
+
+    definition_label.config(text=f"Defintion of {entry_text}: ")
+
     defintion_textbox.config(state="normal")
     defintion_textbox.delete(0.0, END)
     defintion_textbox.insert(END, definition)
@@ -46,10 +51,10 @@ def search_dict():
 def add_key_value():
     def clear_add_entry():
         word_entry.delete(0, END)
-        definition_entry.delete(0, END)
+        definition_entry.delete(0.0, END)
 
     word_entry_text = word_entry.get().lower().strip()
-    def_entry_text = definition_entry.get().strip()
+    def_entry_text = definition_entry.get(0.0, END).strip()
 
     if not word_entry_text or not def_entry_text:
         change_add_status_label("You cannot leave the boxes empty!", "red")
@@ -149,60 +154,60 @@ def change_edit_definition_status_label(error_text, colour):
 
 
 #use the dictionary
-label1 = Label(window, text="Enter your word here: ")
-label1.grid(row=0, column=0)
+definition_label = Label(window, text="Search: ")
+definition_label.grid(row=0, column=0)
 
-entry1 = Entry(window)
-entry1.grid(row=1, column=0, pady=5, padx=(65, 0), sticky=W)
+search_entry = Entry(window)
+search_entry.grid(row=1, column=0, pady=5, padx=(78, 0), sticky=W, ipady=3)
 
 enter_button = Button(window, text="Enter", command=search_dict, bg="light blue")
-enter_button.grid(row=1, column=0, pady=5, padx=(0, 65), sticky=E)
+enter_button.grid(row=1, column=0, pady=5, padx=(0, 78), sticky=E)
 
 search_status_label = Label(window, text="")
 search_status_label.grid(row=2, column=0)
 
-label2 = Label(window, text="Definition: ")
-label2.grid(row=3, column=0, sticky=S, padx=20)
+definition_label = Label(window, text="Definition: ")
+definition_label.grid(row=2, column=0, sticky=S, padx=20)
 
-defintion_textbox = Text(window, width="35", height="15", wrap=WORD, state="disabled")
-defintion_textbox.grid(row=4, column=0, rowspan=2, pady=10, padx=20)
+defintion_textbox = Text(window, width="35", height="21", wrap=WORD, state="disabled")
+defintion_textbox.grid(row=3, column=0, rowspan=3, pady=3, padx=20)
 
 edit_button = Button(window, text="Edit", bg="light blue",command=edit_definition)
-edit_button.grid(row=6, column=0, sticky=W, padx=20, pady=(5, 10))
+edit_button.grid(row=6, column=0, sticky=W, padx=20, pady=(3, 10))
 
 edit_definition_status_label = Label(window, text="")
 edit_definition_status_label.grid(row=6, column=0, sticky=E, padx=20)
 
 #add key/value to the dict
-label3 = Label(window, text="Enter Word: ")
-label3.grid(row=0, column=1)
+add_word_label = Label(window, text="Enter Word: ")
+add_word_label.grid(row=0, column=1)
 
-word_entry = Entry(window)
+word_entry = Entry(window, width=23)
 word_entry.grid(row=1, column=1, padx=40)
 
-label3 = Label(window, text="Enter defintion: ")
-label3.grid(row=2, column=1)
+add_definition_label = Label(window, text="Enter Defintion: ")
+add_definition_label.grid(row=2, column=1, sticky=S)
 
-definition_entry = Entry(window)
-definition_entry.grid(row=3, column=1)
+definition_entry = tkscrolled.ScrolledText(window, width=15, height=6, wrap=WORD)
+definition_entry.grid(row=3, column=1, sticky=N, pady=3)
 
 add_button = Button(window, text="Add Definition", command=add_key_value, bg="#87AE73")
-add_button.grid(row=4, column=1, sticky=N, pady=5)
+add_button.grid(row=3, column=1, sticky=S, pady=1)
 
 add_status_label = Label(window, text="")
-add_status_label.grid(row=4, column=1)
+add_status_label.grid(row=4, column=1, sticky=S)
 
 #delete key/value from dict
-delete_label = Label(window, text="Enter word to delete: ")
-delete_label.grid(row=4, column=1, sticky=S)
+delete_label = Label(window, text="Enter Word:")
+delete_label.grid(row=5, column=1, pady=(0, 60))
 
-delete_entry = Entry(window)
-delete_entry.grid(row=5, column=1, sticky=N)
+delete_entry = Entry(window, width=23)
+delete_entry.grid(row=5, column=1)
 
 delete_button = Button(window, text="Delete Word", bg="#FF6961", command=delete_key_value)
-delete_button.grid(row=5, column=1, pady=3)
+delete_button.grid(row=5, column=1, pady=(40, 0), sticky=S)
 
 delete_status_label = Label(window, text="")
-delete_status_label.grid(row=5, column=1, sticky=S)
+delete_status_label.grid(row=6, column=1)
 
 window.mainloop()
