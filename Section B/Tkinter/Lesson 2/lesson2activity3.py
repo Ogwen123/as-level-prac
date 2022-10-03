@@ -71,7 +71,7 @@ def add_key_value():
 
     clear_add_entry()
 
-    temp_dict = {word_entry_text: def_entry_text}
+    temp_dict = {word_entry_text : def_entry_text}
     dictionary.update(temp_dict)
 
     with open(script_dir + "./definitions.json", "w") as write_file:
@@ -142,24 +142,24 @@ def edit_definition():
 
 
 #change error labels
-def change_search_status_label(error_text, colour):
+def change_search_status_label(status_text, colour):
     search_status_label.config(fg=colour)#changes the text colour of the label
-    search_status_label.config(text=error_text)#sets the text in the label
+    search_status_label.config(text=status_text)#sets the text in the label
     search_status_label.after(4000, lambda: search_status_label.config(text=""))#makes the label disapear after 4 seconds
         
-def change_add_status_label(error_text, colour):
+def change_add_status_label(status_text, colour):
     add_status_label.config(fg=colour)
-    add_status_label.config(text=error_text)
+    add_status_label.config(text=status_text)
     add_status_label.after(4000, lambda: add_status_label.config(text=""))
 
-def change_delete_status_label(error_text, colour):
+def change_delete_status_label(status_text, colour):
     delete_status_label.config(fg=colour)
-    delete_status_label.config(text=error_text)
+    delete_status_label.config(text=status_text)
     delete_status_label.after(4000, lambda: delete_status_label.config(text=""))
 
-def change_edit_definition_status_label(error_text, colour):
+def change_edit_definition_status_label(status_text, colour):
     edit_definition_status_label.config(fg=colour)
-    edit_definition_status_label.config(text=error_text)
+    edit_definition_status_label.config(text=status_text)
     edit_definition_status_label.after(4000, lambda: edit_definition_status_label.config(text=""))
 
 
