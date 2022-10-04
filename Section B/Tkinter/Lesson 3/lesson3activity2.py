@@ -3,6 +3,7 @@ from tkinter import scrolledtext as tkscrolled
 import json
 from datetime import datetime
 import os
+from tkinter import ttk
 
 window = Tk()
 window.title("Questionnaire")
@@ -12,7 +13,11 @@ window.geometry("350x550")
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 def submit_button():
+    title = title_cb.get()
     name = name_entry.get().title().strip()
+
+    name = title + " " + name
+
     age = str(age_spin.get())
     gender = gender_select.get()
     if gender == 0: gender = "Male"
@@ -26,6 +31,7 @@ def submit_button():
     age_spin.delete(0, END)
     age_spin.insert(0, 1)
     gender_select.set(0)
+    title_cb.set("Pick Your Title")
 
     #validation checks
     if not name: 
@@ -104,7 +110,7 @@ def submit_button():
     lang_choice_list = [value for value in lang_choice_list if value != 0]
     choices.append(lang_choice_list)
 
-    print(choices)
+    #print(choices)
 
     option_order = ["Name: ", "Age: ", "Gender: "]
 
@@ -122,7 +128,7 @@ def submit_button():
     change_status_label("Recorded Result!", "green")
 
     json_path = script_dir + "\questionnaire_history.json"
-    print(json_path)
+    #print(json_path)
 
     #add to external file
     with open(json_path, "r") as read_file:
@@ -132,7 +138,7 @@ def submit_button():
     now = datetime.now()
     temp_dict = {str(now):choices}
     loaded_file.update(temp_dict)
-    print(loaded_file)
+    #print(loaded_file)
 
     with open(json_path, "w") as write_file:
         json.dump(loaded_file, write_file)
@@ -143,87 +149,97 @@ def change_status_label(text, colour):
     status_label.config(text=text)
     status_label.after(4000, lambda: status_label.config(text=""))
 
-title_label = Label(window, text="Questionnaire", font="Calibri 16")
-title_label.grid(row=0, column=0, columnspan=2)
+header_label = Label(window, text="Questionnaire", font="Calibri 16")
+header_label.grid(row=0, column=0, columnspan=2)
+
+title_label = Label(window, text="Title: ", font="Calibri 12")
+title_label.grid(row=1, column=0, sticky=W, padx=5, pady=5)
+
+title_select = StringVar()
+title_cb = ttk.Combobox(window, textvariable=title_select)
+title_cb["values"] = ("Mr", "Mrs", "Ms", "Master", "Dr")
+title_cb.grid(row=1, column=1, sticky=E, padx=3)
+title_cb.config(state="readonly")
+title_cb.set("Pick Your Title")
 
 name_label = Label(window, text="Name: ", font="Calibri 12")
-name_label.grid(row=1, column=0, sticky=W, padx=5, pady=5)
+name_label.grid(row=2, column=0, sticky=W, padx=5, pady=5)
 
-name_entry = Entry(window, width=22)
-name_entry.grid(row=1, column=1, sticky=E, padx=5)
+name_entry = Entry(window, width=23)
+name_entry.grid(row=2, column=1, sticky=E, padx=5)
 
 age_label = Label(window, text="Age: ", font="Calibri 12")
-age_label.grid(row=2, column=0, sticky=W, padx=5, pady=5)
+age_label.grid(row=3, column=0, sticky=W, padx=5, pady=5)
 
 age_range = IntVar()
 age_spin = Spinbox(window, textvariable=age_range, from_=1, to=100)
-age_spin.grid(row=2, column=1, sticky=E, padx=5)
+age_spin.grid(row=3, column=1, sticky=E, padx=5)
 
 gender_label = Label(window, text="Gender: ", font="Calibri 12")
-gender_label.grid(row=3, column=0, sticky=W, padx=5)
+gender_label.grid(row=4, column=0, sticky=W, padx=5)
 
 gender_select = IntVar()
 
 gender_radio_button = Radiobutton(window, text="Male", variable=gender_select, value=0) 
-gender_radio_button.grid(row=3, column=1, sticky=W)
-gender_radio_button = Radiobutton(window, text="Female", variable=gender_select, value=1)
 gender_radio_button.grid(row=4, column=1, sticky=W)
-gender_radio_button = Radiobutton(window, text="Other", variable=gender_select, value=2)
+gender_radio_button = Radiobutton(window, text="Female", variable=gender_select, value=1)
 gender_radio_button.grid(row=5, column=1, sticky=W)
+gender_radio_button = Radiobutton(window, text="Other", variable=gender_select, value=2)
+gender_radio_button.grid(row=6, column=1, sticky=W)
 
 lang_label_1 = Label(window, text="Coding", font="Calibri 12")
-lang_label_1.grid(row=7, column=0)
+lang_label_1.grid(row=8, column=0)
 
 lang_label_2 = Label(window, text="Language: ", font="Calibri 12")
-lang_label_2.grid(row=8, column=0)
+lang_label_2.grid(row=9, column=0)
 
 var1 = IntVar()
 lang_1 = Checkbutton(window, text="Python", variable=var1)
-lang_1.grid(row=7, column=1, sticky=W)
+lang_1.grid(row=8, column=1, sticky=W)
 
 var2 = IntVar()
 lang_2 = Checkbutton(window, text="Javascript", variable=var2)
-lang_2.grid(row=8, column=1, sticky=W)
+lang_2.grid(row=9, column=1, sticky=W)
 
 var3 = IntVar()
 lang_3 = Checkbutton(window, text="Typescript", variable=var3)
-lang_3.grid(row=9, column=1, sticky=W)
+lang_3.grid(row=10, column=1, sticky=W)
 
 var4 = IntVar()
 lang_4 = Checkbutton(window, text="C", variable=var4)
-lang_4.grid(row=10, column=1, sticky=W)
+lang_4.grid(row=11, column=1, sticky=W)
 
 var5 = IntVar()
 lang_5 = Checkbutton(window, text="C#", variable=var5)
-lang_5.grid(row=11, column=1, sticky=W)
+lang_5.grid(row=12, column=1, sticky=W)
 
 var6 = IntVar()
 lang_6 = Checkbutton(window, text="C++", variable=var6)
-lang_6.grid(row=7, column=2, sticky=W)
+lang_6.grid(row=8, column=2, sticky=W)
 
 var7 = IntVar()
 lang_7 = Checkbutton(window, text="Java", variable=var7)
-lang_7.grid(row=8, column=2, sticky=W)
+lang_7.grid(row=9, column=2, sticky=W)
 
 var8 = IntVar()
 lang_8 = Checkbutton(window, text="Flutter", variable=var8)
-lang_8.grid(row=9, column=2, sticky=W)
+lang_8.grid(row=10, column=2, sticky=W)
 
 var9 = IntVar()
 lang_9 = Checkbutton(window, text="Rust", variable=var9)
-lang_9.grid(row=10, column=2, sticky=W)
+lang_9.grid(row=11, column=2, sticky=W)
 
 var10 = IntVar()
 lang_10 = Checkbutton(window, text="None", variable=var10)
-lang_10.grid(row=11, column=2, sticky=W)
+lang_10.grid(row=12, column=2, sticky=W)
 
 submit_button = Button(window, text="Submit", command=submit_button)
-submit_button.grid(row=12, column=0, sticky=W, padx=10, pady=10)
+submit_button.grid(row=13, column=0, sticky=W, padx=10, pady=10)
 
 status_label = Label(window, text="")
-status_label.grid(row=12, column=1, columnspan=2)
+status_label.grid(row=13, column=1, columnspan=2)
 
 display_info = tkscrolled.ScrolledText(window, width=20, height=10, wrap=WORD, state="disabled")
-display_info.grid(row=13, column=0, columnspan=2)
+display_info.grid(row=14, column=0, columnspan=2)
 
 window.mainloop()

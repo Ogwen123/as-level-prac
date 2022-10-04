@@ -1,1 +1,10 @@
-{"alu": "Arithmetic Logic Unit hi\n", "cu": "Control Unit", "cpu": "Central Processing Unit", "ram": "Random Access Memory", "gpu": "Graphics Processing Unit", "hi": "this is short for hello", "psu": "Power Supply Unit", "hola": "spanish for hello or hi\n"}
+{
+    "alu": "Arithmetic Logic Unit hi\n", 
+"cu": "Control Unit", 
+"cpu": "Central Processing Unit", 
+"ram": "Random Access Memory", 
+"gpu": "Graphics Processing Unit", 
+"hi": "this is short for hello", 
+"psu": "Power Supply Unit", 
+"hola": "spanish for hello or hi\n"
+}
