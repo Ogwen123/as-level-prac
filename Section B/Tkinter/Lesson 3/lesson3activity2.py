@@ -5,6 +5,8 @@ from datetime import datetime
 import os
 from tkinter import ttk
 
+WRITE_TO_FILE = False
+
 window = Tk()
 window.title("Questionnaire")
 #window.resizable(False, False)
@@ -36,6 +38,10 @@ def submit_button():
     #validation checks
     if not name: 
         change_status_label("All of the fields must be filled!", "red")
+        return
+    
+    if title == "Pick Your Title":
+        change_status_label("Please pick a title!", "red")
         return
 
     lang_choice_list = []
@@ -125,24 +131,27 @@ def submit_button():
         display_info.insert(END, f"\u2022 {i}\n")
 
     display_info.config(state="disabled")
-    change_status_label("Recorded Result!", "green")
 
-    json_path = script_dir + "\questionnaire_history.json"
-    #print(json_path)
 
-    #add to external file
-    with open(json_path, "r") as read_file:
-        loaded_file = json.load(read_file)
-        read_file.close()
+    if WRITE_TO_FILE:
+        change_status_label("Recorded Result!", "green")
 
-    now = datetime.now()
-    temp_dict = {str(now):choices}
-    loaded_file.update(temp_dict)
-    #print(loaded_file)
+        json_path = script_dir + "\questionnaire_history.json"
+        #print(json_path)
 
-    with open(json_path, "w") as write_file:
-        json.dump(loaded_file, write_file)
-        write_file.close()
+        #add to external file
+        with open(json_path, "r") as read_file:
+            loaded_file = json.load(read_file)
+            read_file.close()
+
+        now = datetime.now()
+        temp_dict = {str(now):choices}
+        loaded_file.update(temp_dict)
+        #print(loaded_file)
+
+        with open(json_path, "w") as write_file:
+            json.dump(loaded_file, write_file)
+            write_file.close()
 
 def change_status_label(text, colour):
     status_label.config(fg=colour)
@@ -172,7 +181,7 @@ age_label = Label(window, text="Age: ", font="Calibri 12")
 age_label.grid(row=3, column=0, sticky=W, padx=5, pady=5)
 
 age_range = IntVar()
-age_spin = Spinbox(window, textvariable=age_range, from_=1, to=100)
+age_spin = Spinbox(window, textvariable=age_range, from_=1, to=100, width=21)
 age_spin.grid(row=3, column=1, sticky=E, padx=5)
 
 gender_label = Label(window, text="Gender: ", font="Calibri 12")
