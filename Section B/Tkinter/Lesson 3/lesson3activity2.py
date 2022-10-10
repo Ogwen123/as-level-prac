@@ -13,39 +13,7 @@ window.title("Questionnaire")
 window.geometry("350x550")
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
-def submit_button():
-    title = title_cb.get()
-    name = name_entry.get().title().strip()
-
-    name = title + " " + name
-
-    age = str(age_spin.get())
-    gender = gender_select.get()
-    if gender == 0: gender = "Male"
-    if gender == 1: gender = "Female"
-    if gender == 2: gender = "Other" 
-    #print(name)
-    #print(age)
-    #print(gender)
-
-    name_entry.delete(0, END)
-    age_spin.delete(0, END)
-    age_spin.insert(0, 1)
-    gender_select.set(0)
-    title_cb.set("Pick Your Title")
-
-    #validation checks
-    if not name: 
-        change_status_label("All of the fields must be filled!", "red")
-        return
-    
-    if title == "Pick Your Title":
-        change_status_label("Please pick a title!", "red")
-        return
-
-    lang_choice_list = []
-    lang_list = [
+lang_list = [
         "Python", 
         "Javascript", 
         "Typescript", 
@@ -57,46 +25,49 @@ def submit_button():
         "Rust",
         "None"]
 
-    choice1 = var1.get()
-    lang_1.deselect()
-    lang_choice_list.append(choice1)
+def submit_button():
+    title = title_cb.get()
+    name = name_entry.get().title().strip()
 
-    choice2 = var2.get()
-    lang_choice_list.append(choice2)
-    lang_2.deselect()
+    name = title + " " + name
 
-    choice3 = var3.get()
-    lang_choice_list.append(choice3)
-    lang_3.deselect()
+    age = str(age_spin.get())
+    gender_num = gender_select.get()
+    if gender_num == 1: gender = "Male"
+    if gender_num == 2: gender = "Female"
+    if gender_num == 3: gender = "Other" 
+    #print(name)
+    #print(age)
+    #print(gender)
 
-    choice4 = var4.get()
-    lang_choice_list.append(choice4)
-    lang_4.deselect()
+    name_entry.delete(0, END)
+    age_spin.delete(0, END)
+    age_spin.insert(0, 1)
+    gender_select.set(0)
+    title_cb.set("Pick Your Title")
 
-    choice5 = var5.get()
-    lang_choice_list.append(choice5)
-    lang_5.deselect()
+    #validation checks
+    if title == "Pick Your Title":
+        change_status_label("Please pick a title!", "red")
+        return
 
-    choice6 = var6.get()
-    lang_choice_list.append(choice6)
-    lang_6.deselect()
+    if not name: 
+        change_status_label("All of the fields must be filled!", "red")
+        return
+    
+    if gender_num not in [1, 2, 3]:
+        change_status_label("You must select a gender", "red")
 
-    choice7 = var7.get()
-    lang_choice_list.append(choice7)
-    lang_7.deselect()
+    lang_choice_list = []
 
-    choice8 = var8.get()
-    lang_choice_list.append(choice8)
-    lang_8.deselect()
+    for i in lang_value_list:
+        lang_choice_list.append(i.get())
+    print(lang_choice_list)
 
-    choice9 = var9.get()
-    lang_choice_list.append(choice9)
-    lang_9.deselect()
-
-    choice10 = var10.get()
-    lang_choice_list.append(choice10)
-    lang_10.deselect()
-
+    #more validation checks
+    if 1 not in lang_choice_list:
+        change_status_label("You must select a coding language!", "red")
+        return
 
     if lang_choice_list[-1] == 1 and 1 in lang_choice_list[0:9]:
         change_status_label("You can't select other boxes if you select None!", "red")
@@ -131,7 +102,8 @@ def submit_button():
         display_info.insert(END, f"\u2022 {i}\n")
 
     display_info.config(state="disabled")
-
+    if not WRITE_TO_FILE:
+        change_status_label("Submition Successful", "green")
 
     if WRITE_TO_FILE:
         change_status_label("Recorded Result!", "green")
@@ -189,11 +161,11 @@ gender_label.grid(row=4, column=0, sticky=W, padx=5)
 
 gender_select = IntVar()
 
-gender_radio_button = Radiobutton(window, text="Male", variable=gender_select, value=0) 
+gender_radio_button = Radiobutton(window, text="Male", variable=gender_select, value=1) 
 gender_radio_button.grid(row=4, column=1, sticky=W)
-gender_radio_button = Radiobutton(window, text="Female", variable=gender_select, value=1)
+gender_radio_button = Radiobutton(window, text="Female", variable=gender_select, value=2)
 gender_radio_button.grid(row=5, column=1, sticky=W)
-gender_radio_button = Radiobutton(window, text="Other", variable=gender_select, value=2)
+gender_radio_button = Radiobutton(window, text="Other", variable=gender_select, value=3)
 gender_radio_button.grid(row=6, column=1, sticky=W)
 
 lang_label_1 = Label(window, text="Coding", font="Calibri 12")
@@ -202,45 +174,16 @@ lang_label_1.grid(row=8, column=0)
 lang_label_2 = Label(window, text="Language: ", font="Calibri 12")
 lang_label_2.grid(row=9, column=0)
 
-var1 = IntVar()
-lang_1 = Checkbutton(window, text="Python", variable=var1)
-lang_1.grid(row=8, column=1, sticky=W)
+#dynamically render the checkboxes
+grid_values = ["81", "91", "101", "111", "121", "82", "92", "102", "112", "122"]
+lang_value_list = []
+for i, j in enumerate(lang_list):
+    column = grid_values[i][-1]
+    row = grid_values[i][0:-1]
 
-var2 = IntVar()
-lang_2 = Checkbutton(window, text="Javascript", variable=var2)
-lang_2.grid(row=9, column=1, sticky=W)
-
-var3 = IntVar()
-lang_3 = Checkbutton(window, text="Typescript", variable=var3)
-lang_3.grid(row=10, column=1, sticky=W)
-
-var4 = IntVar()
-lang_4 = Checkbutton(window, text="C", variable=var4)
-lang_4.grid(row=11, column=1, sticky=W)
-
-var5 = IntVar()
-lang_5 = Checkbutton(window, text="C#", variable=var5)
-lang_5.grid(row=12, column=1, sticky=W)
-
-var6 = IntVar()
-lang_6 = Checkbutton(window, text="C++", variable=var6)
-lang_6.grid(row=8, column=2, sticky=W)
-
-var7 = IntVar()
-lang_7 = Checkbutton(window, text="Java", variable=var7)
-lang_7.grid(row=9, column=2, sticky=W)
-
-var8 = IntVar()
-lang_8 = Checkbutton(window, text="Flutter", variable=var8)
-lang_8.grid(row=10, column=2, sticky=W)
-
-var9 = IntVar()
-lang_9 = Checkbutton(window, text="Rust", variable=var9)
-lang_9.grid(row=11, column=2, sticky=W)
-
-var10 = IntVar()
-lang_10 = Checkbutton(window, text="None", variable=var10)
-lang_10.grid(row=12, column=2, sticky=W)
+    lang_value_list.append(IntVar())
+    lang_checkbox = Checkbutton(window, text=j, variable=lang_value_list[i])
+    lang_checkbox.grid(row=row, column=column, sticky=W)
 
 submit_button = Button(window, text="Submit", command=submit_button)
 submit_button.grid(row=13, column=0, sticky=W, padx=10, pady=10)
