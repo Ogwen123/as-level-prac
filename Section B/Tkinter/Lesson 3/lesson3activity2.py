@@ -62,7 +62,7 @@ def submit_button():
 
     for i in lang_value_list:
         lang_choice_list.append(i.get())
-    print(lang_choice_list)
+    #print(lang_choice_list)
 
     #more validation checks
     if 1 not in lang_choice_list:
