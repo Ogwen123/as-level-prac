@@ -5,8 +5,6 @@ from datetime import datetime
 import os
 from tkinter import ttk
 
-WRITE_TO_FILE = False
-
 window = Tk()
 window.title("Questionnaire")
 window.resizable(False, False)
@@ -25,7 +23,7 @@ lang_list = [#before the first comma is the coding langauge name, between the co
         "Rust,11,2",
         ]
 
-def submit_button():
+def get_info():
     title = title_cb.get()
     name = name_entry.get().title().strip()
 
@@ -52,22 +50,28 @@ def submit_button():
     #validation checks
     if title == "Pick Your Title":#check that a title has been selected
         change_status_label("Please pick a title!", "red")
-        return
+        return "validation failed"
 
     if not name:#check that a name has been entered
         change_status_label("All of the fields must be filled!", "red")
-        return
+        return "validation failed"
     
+    if len(name) > 50:#check that name is the write length due to the way the data is stored in the file
+        max_name_len = 50 - len(title + " ")
+        change_status_label(f"Name cannot be more that {str(max_name_len)} characters", "red")
+        return "validation failed"
+
     if gender_var not in [1, 2, 3]:#check that a gender has been entered
         change_status_label("You must select a gender", "red")
+        return  "validation failed"
 
     if 1 not in lang_choice_list:#check that either a coding language has been selected or the none box has been selected
         change_status_label("You must select a coding language!", "red")
-        return
+        return "validation failed"
 
     if lang_choice_list[-1] == 1 and 1 in lang_choice_list[0:9]:#make sure that if the none box has been selected no other box has been selected
         change_status_label("You can't select other boxes if you select None!", "red")
-        return
+        return "validation failed"
 
     for i in range(len(lang_choice_list)):#replace all the 1s in the choice list with the actual name of the language
         #print(lang_choice_list[i])
@@ -83,8 +87,12 @@ def submit_button():
     lang_choice_list = [value for value in lang_choice_list if value != 0]#wtf is this, absolutely digusting, it loops through the last and only adds ones that are not 0, therefore have to be 1
 
     choices.append(lang_choice_list)
+    return choices
 
-    #print(choices)
+def submit_func(choices):
+
+    if choices == "validation failed":
+        return
 
     option_order = ["Name: ", "Age: ", "Gender: "]
 
@@ -99,28 +107,34 @@ def submit_button():
         display_info.insert(END, f"\u2022 {i}\n")
 
     display_info.config(state="disabled")
-    if not WRITE_TO_FILE:
-        change_status_label("Submition Successful", "green")
+    change_status_label("Submission Succesful", "green")
 
-    if WRITE_TO_FILE:
-        change_status_label("Recorded Result!", "green")
+def save_button():
+    choices = get_info()
 
-        json_path = script_dir + "\questionnaire_history.json"
-        #print(json_path)
+    submit_func(choices)
 
-        #add to external file
-        with open(json_path, "r") as read_file:
-            loaded_file = json.load(read_file)
-            read_file.close()
+    if choices == "validation failed":
+        return
 
-        now = datetime.now()
-        temp_dict = {str(now):choices}
-        loaded_file.update(temp_dict)
-        #print(loaded_file)
+    formatted_name = choices[0].ljust(50)
+    formatted_age = choices[1].ljust(50)
+    formatted_gender = choices[2].ljust(50)
 
-        with open(json_path, "w") as write_file:
-            json.dump(loaded_file, write_file)
-            write_file.close()
+    str_lang_list = str(choices[-1])
+    str_lang_list = str_lang_list.replace("[", "")
+    str_lang_list = str_lang_list.replace("]", "")
+    str_lang_list = str_lang_list.replace("'", "")
+    formatted_langs = str_lang_list.ljust(50)
+
+    write_list = formatted_name + formatted_age + formatted_gender + formatted_langs + "\n"
+
+    print(write_list)
+
+    with open(script_dir + "/submissions.txt", "a") as read_file:
+        read_file.write(write_list)
+
+    change_status_label("Saved To File", "green")
 
 def change_status_label(text, colour):
     status_label.config(fg=colour)
@@ -149,8 +163,10 @@ name_entry.grid(row=2, column=1, sticky=E, padx=5)
 age_label = Label(window, text="Age: ", font="Calibri 12")
 age_label.grid(row=3, column=0, sticky=W, padx=5, pady=5)
 
+max_age = (datetime.today().year) - (1903)
+
 age_range = IntVar()
-age_spin = Spinbox(window, textvariable=age_range, from_=1, to=100, width=21)
+age_spin = Spinbox(window, textvariable=age_range, from_=1, to=max_age, width=21)
 age_spin.grid(row=3, column=1, sticky=E, padx=5)
 
 gender_label = Label(window, text="Gender: ", font="Calibri 12")
@@ -219,13 +235,16 @@ none_checkbox = Checkbutton(window, text="None", variable=lang_value_list[-1])
 none_checkbox.grid(row=none_row, column=none_column, sticky=W)
 
 
-submit_button = Button(window, text="Submit", command=submit_button)
+submit_button = Button(window, text="Submit", command=lambda: submit_func(get_info()))
 submit_button.grid(row=n+1, column=0, sticky=W, padx=10, pady=10)
 
+save_button = Button(window, text="Save To File", command=save_button)
+save_button.grid(row=n+1, column=1, sticky=W, )
+
 status_label = Label(window, text="")
-status_label.grid(row=n+1, column=1, columnspan=2)
+status_label.grid(row=n+2, column=0, columnspan=3)
 
 display_info = tkscrolled.ScrolledText(window, width=20, height=10, wrap=WORD, state="disabled")
-display_info.grid(row=n+2, column=0, columnspan=2,pady=(0, 10))
+display_info.grid(row=n+3, column=0, columnspan=2, pady=(0, 10), sticky=W, padx=10)
 
 window.mainloop()
