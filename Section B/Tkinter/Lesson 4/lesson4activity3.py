@@ -9,6 +9,7 @@ window = Tk()
 window.title("Questionnaire")
 window.resizable(False, False)
 
+current_info_tracker = 0
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 lang_list = [#before the first comma is the coding langauge name, between the commas is the row, after the last comma is the column
@@ -29,7 +30,7 @@ def get_info():
 
     name = title + " " + name
 
-    age = str(age_spin.get())
+    age = age_spin.get()
     gender_var = gender_select.get()
     if gender_var == 1: gender = "Male"
     if gender_var == 2: gender = "Female"
@@ -61,6 +62,12 @@ def get_info():
         change_status_label(f"Name cannot be more that {str(max_name_len)} characters", "red")
         return "validation failed"
 
+    try:
+        age = int(age)
+    except ValueError:
+        change_status_label("Age must be an integer!", "red")
+        return
+
     if gender_var not in [1, 2, 3]:#check that a gender has been entered
         change_status_label("You must select a gender", "red")
         return  "validation failed"
@@ -76,7 +83,10 @@ def get_info():
     for i in range(len(lang_choice_list)):#replace all the 1s in the choice list with the actual name of the language
         #print(lang_choice_list[i])
         if lang_choice_list[i] == 1:
-            lang_choice_list[i] = lang_list[i].split(",")[0]
+            try:
+                lang_choice_list[i] = lang_list[i].split(",")[0]
+            except IndexError:
+                lang_choice_list[i] = "None"
     
     #print(lang_choice_list)
     choices = []
@@ -125,7 +135,7 @@ def save_button():
     str_lang_list = str_lang_list.replace("[", "")
     str_lang_list = str_lang_list.replace("]", "")
     str_lang_list = str_lang_list.replace("'", "")
-    formatted_langs = str_lang_list.ljust(50)
+    formatted_langs = str_lang_list
 
     write_list = formatted_name + formatted_age + formatted_gender + formatted_langs + "\n"
 
@@ -136,10 +146,68 @@ def save_button():
 
     change_status_label("Saved To File", "green")
 
+def display_previous_results(direction):
+    global current_info_tracker    
+
+    #get info from file
+    past_results = ""
+    with open(script_dir + "/submissions.txt", "r") as read_file:
+        past_results = read_file.read()
+
+        past_results = past_results.split("\n")
+    
+    
+    if direction == "left":
+        if current_info_tracker == len(past_results)-1:
+            change_status_label("No more results to display!", "red")
+            return
+        current_info_tracker += 1
+    elif direction == "right":
+        current_info_tracker -= 1
+        if current_info_tracker == 0:
+            change_status_label("No more results to display!", "red")
+            display_info.delete(0.0, END)
+            change_tracker_label(f"Current Result: {current_info_tracker}")
+            return
+
+    change_tracker_label(f"Current Result: {current_info_tracker}")
+
+
+    del past_results[-1]#remove last item which is always empty
+
+    #load info into list
+    results = []
+
+    list_index = current_info_tracker-1
+    past_results.reverse()#reverse list so most recent results are first
+    results.append(past_results[list_index][0:50])
+    results.append(past_results[list_index][50:100])
+    results.append(past_results[list_index][100:150])
+    langs = past_results[list_index][150:]
+    langs_list = langs.split(",")
+    langs_list[-1] = langs_list[-1].strip()
+    results.append(langs_list)
+
+    display_info.config(state="normal")
+    display_info.delete(0.0, END)
+
+    for i in range(3):
+        display_info.insert(END, results[i])
+    
+    display_info.insert(END, "Coding Languages: \n")
+
+    for i in results[-1]:
+        display_info.insert(END, f"\u2022 {i}\n")
+
+
 def change_status_label(text, colour):
     status_label.config(fg=colour)
     status_label.config(text=text)
     status_label.after(4000, lambda: status_label.config(text=""))
+
+def change_tracker_label(text, colour="black"):
+    tracker_label.config(fg=colour)
+    tracker_label.config(text=f"Current Result: {current_info_tracker}")
 
 header_label = Label(window, text="Questionnaire", font="Calibri 16")
 header_label.grid(row=0, column=0, columnspan=3)
@@ -235,16 +303,25 @@ none_checkbox = Checkbutton(window, text="None", variable=lang_value_list[-1])
 none_checkbox.grid(row=none_row, column=none_column, sticky=W)
 
 
-submit_button = Button(window, text="Submit", command=lambda: submit_func(get_info()))
+submit_button = Button(window, text="Submit", command=lambda: submit_func(get_info()), bg="#87AE73")
 submit_button.grid(row=n+1, column=0, sticky=W, padx=10, pady=10)
 
-save_button = Button(window, text="Save To File", command=save_button)
+save_button = Button(window, text="Save To File", command=save_button, bg="#87AE73")
 save_button.grid(row=n+1, column=1, sticky=W, )
 
+left_button = Button(window, text="❰", command=lambda: display_previous_results("left"), bg="#FDFD96")
+left_button.grid(row=n+2, column=0, sticky=W, padx=(10, 0))
+
+right_button = Button(window, text="❱", command=lambda: display_previous_results("right"), bg="#FDFD96")
+right_button.grid(row=n+2, column=0, padx=25, sticky=W)
+
+tracker_label = Label(window, text="Current Result: 0")
+tracker_label.grid(row=n+2, column=1)
+
 status_label = Label(window, text="")
-status_label.grid(row=n+2, column=0, columnspan=3)
+status_label.grid(row=n+3, column=0, columnspan=3)
 
 display_info = tkscrolled.ScrolledText(window, width=20, height=10, wrap=WORD, state="disabled")
-display_info.grid(row=n+3, column=0, columnspan=2, pady=(0, 10), sticky=W, padx=10)
+display_info.grid(row=n+4, column=0, columnspan=2, pady=(0, 10), sticky=W, padx=10)
 
 window.mainloop()

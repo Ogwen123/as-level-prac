@@ -1,1 +1,2 @@
-Mr Owen                                           16                                                Male                                              Python, Javascript                                
+Mr Owen                                           16                                                Male                                              Python, Javascript
+Mr Ben                                            2                                                 Female                                            Rust
