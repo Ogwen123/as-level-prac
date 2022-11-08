@@ -24,14 +24,16 @@ lang_list = [#before the first comma is the coding langauge name, between the co
         "Rust,11,2",
         ]
 
-def get_info():#a single function to get all of the data from the inputs and return it as a list
+
+def get_info(raw_data):#a single function to get all of the data from the inputs and return it as a list
     title = title_cb.get()#get data from title combobox
-    name = name_entry.get().title().strip()#get data from name entry
+    name = name_entry.get().title()#get data from name entry
 
     name = title + " " + name
 
     age = age_spin.get()#get data from age spinbox
     gender_var = gender_select.get()#get data from gender radio boxes
+    if gender_var == 0: gender = ""
     if gender_var == 1: gender = "Male"
     if gender_var == 2: gender = "Female"
     if gender_var == 3: gender = "Other" 
@@ -39,7 +41,7 @@ def get_info():#a single function to get all of the data from the inputs and ret
     #reset all of the inputs
     name_entry.delete(0, END)
     age_spin.delete(0, END)
-    age_spin.insert(0, 1)
+    age_spin.insert(0, 0)
     gender_select.set(0)
     title_cb.set("Pick Your Title")
 
@@ -49,37 +51,9 @@ def get_info():#a single function to get all of the data from the inputs and ret
         lang_choice_list.append(i.get())
         i.set(0)#reset the language options
 
-    #validation checks
-    if title == "Pick Your Title":#check that a title has been selected
-        change_status_label("Please pick a title!", "red")
-        return "validation failed"
-
-    if not name:#check that a name has been entered
-        change_status_label("All of the fields must be filled!", "red")
-        return "validation failed"
-    
-    if len(name) > 50:#check that name is the write length due to the way the data is stored in the file
-        max_name_len = 50 - len(title + " ")
-        change_status_label(f"Name cannot be more that {str(max_name_len)} characters", "red")
-        return "validation failed"
-
-    try:
-        age = int(age)#make sure the age in not a string, otherwise there will be alot of issues
-    except ValueError:
-        change_status_label("Age must be an integer!", "red")
-        return
-
-    if gender_var not in [1, 2, 3]:#check that a gender has been entered
-        change_status_label("You must select a gender", "red")
-        return  "validation failed"
-
-    if 1 not in lang_choice_list:#check that either a coding language has been selected or the none box has been selected
-        change_status_label("You must select a coding language!", "red")
-        return "validation failed"
-
-    if lang_choice_list[-1] == 1 and 1 in lang_choice_list[0:9]:#make sure that if the none box has been selected no other box has been selected
-        change_status_label("You can't select other boxes if you select None!", "red")
-        return "validation failed"
+    if not raw_data: 
+        if validate_info(title, name, age, gender_var, lang_choice_list) == "validation failed":
+            return "validation failed"
 
     for i in range(len(lang_choice_list)):#replace all the 1s in the choice list with the actual name of the language
         #print(lang_choice_list[i])
@@ -88,7 +62,8 @@ def get_info():#a single function to get all of the data from the inputs and ret
                 lang_choice_list[i] = lang_list[i].split(",")[0]
             except IndexError:
                 lang_choice_list[i] = "None"
-    
+
+    name = name.strip()        
     #print(lang_choice_list)
     choices = []
     choices.append(name)
@@ -100,29 +75,115 @@ def get_info():#a single function to get all of the data from the inputs and ret
     choices.append(lang_choice_list)
     return choices#list format: name with title, age , gender, list of programming languages
 
-def submit_func(choices):
 
-    if choices == "validation failed":
-        return
+def validate_info(title, name, age, gender_var, lang_choice_list):
+    PASSED = "validation passed"
+    FAILED = "validation failed"
 
-    option_order = ["Name: ", "Age: ", "Gender: "]
+    #validation checks
+    if title == "Pick Your Title":#check that a title has been selected
+        change_status_label("Please pick a title!", "red")
+        return FAILED
+
+    if not name:#check that a name has been entered
+        change_status_label("All of the fields must be filled!", "red")
+        return FAILED
+    
+    if len(name) > 50:#check that name is the write length due to the way the data is stored in the file
+        max_name_len = 50 - len(title + " ")
+        change_status_label(f"Name cannot be more that {str(max_name_len)} characters", "red")
+        return FAILED
+
+    try:
+        age = int(age)#make sure the age in not a string, otherwise there will be alot of issues
+    except ValueError:
+        change_status_label("Age must be an integer!", "red")
+        return  FAILED
+
+    if age == 0:
+        change_status_label("You have to be 1 or older to use this program!", "red")
+        return  FAILED
+
+    if gender_var not in [1, 2, 3]:#check that a gender has been entered
+        change_status_label("You must select a gender", "red")
+        return  FAILED
+
+    if 1 not in lang_choice_list:#check that either a coding language has been selected or the none box has been selected
+        change_status_label("You must select a coding language!", "red")
+        return FAILED
+
+    if lang_choice_list[-1] == 1 and 1 in lang_choice_list[0:9]:#make sure that if the none box has been selected no other box has been selected
+        change_status_label("You can't select other boxes if you select None!", "red")
+        return FAILED
+
+    return PASSED
+
+
+def process_submissions(past_results):
+    #load info into list
+    results = []
+    if not isinstance(past_results, list):
+        tempvar = past_results
+        past_results = []
+        past_results.append(tempvar)
+
+    for i in range(len(past_results)):
+        tempresults = []
+        #reverse list so most recent results are first
+        tempresults.append(past_results[i][0:50])
+        tempresults.append(past_results[i][50:100])
+        tempresults.append(past_results[i][100:150])
+        langs = past_results[i][150:]
+        
+        langs_list = langs.split(",")
+        langs_list[-1] = langs_list[-1].strip()
+        tempresults.append(langs_list)
+        
+        results.append(tempresults)
+    
+    return results
+
+
+def get_submissions():#a single functions to get previous submissions from the submissions file and return them as a list
+    #get info from file
+    past_results = ""
+    with open(script_dir + "/submissions.txt", "r") as read_file:
+        past_results = read_file.read()
+        past_results = past_results.split("\n")
+
+    if past_results[-1] == "": del past_results[-1]#remove last item which should always be empty
+
+    past_results.reverse()
+
+    return [process_submissions(past_results[current_info_tracker-1]), len(past_results)]
+
+
+def write_to_textbox(data, delete = True):
+    option_order = ["name", "age", "gender"]
 
     display_info.config(state="normal")
-    display_info.delete(0.0, END)
+    if delete: display_info.delete(0.0, END)
     for i in range(3):
-        display_info.insert(END, f"{option_order[i]}{choices[i]}\n")
+        display_info.insert(END, f"{option_order[i].title()}: {data[i]}\n")
 
     display_info.insert(END, "Coding Languages: \n")
 
-    for i in choices[-1]:
-        display_info.insert(END, f"\u2022 {i}\n")
+    for i in data[-1]:
+        display_info.insert(END, f"\u2022 {i}\n")# \u2022 is the unicode code for bulletpoint
 
     display_info.config(state="disabled")
+
+
+def submit_func(choices):
+    if choices == "validation failed":
+        return
+
+    write_to_textbox(choices)
     change_status_label("Submission Succesful", "green")
 
-def save_button():
-    choices = get_info()
 
+def save_button():
+    choices = get_info(False)
     submit_func(choices)
 
     if choices == "validation failed":
@@ -147,69 +208,110 @@ def save_button():
 
     change_status_label("Saved To File", "green")
 
-def display_previous_results(direction):
+
+def display_previous_results(direction, past_results):
     global current_info_tracker    
 
-    #get info from file
-    past_results = ""
-    with open(script_dir + "/submissions.txt", "r") as read_file:
-        past_results = read_file.read()
+    results = past_results[0][0]
+    past_results_len = past_results[1]
 
-        past_results = past_results.split("\n")
-    
-    
     if direction == "left":
-        if current_info_tracker == len(past_results)-1:
+        if current_info_tracker == past_results_len:
             change_status_label("No more results to display!", "red")
             return
         current_info_tracker += 1
+
     elif direction == "right":
-        if current_info_tracker <= 0:
+        if current_info_tracker-1 <= 0:
             change_status_label("No more results to display!", "red")
             display_info.delete(0.0, END)
+            current_info_tracker -= 1
             change_tracker_label(f"Current Result: {current_info_tracker}")
             return
-        
         current_info_tracker -= 1
 
     change_tracker_label(f"Current Result: {current_info_tracker}")
-
-
-    del past_results[-1]#remove last item which is always empty
-
-    #load info into list
-    results = []
-
-    list_index = current_info_tracker-1
-    past_results.reverse()#reverse list so most recent results are first
-    results.append(past_results[list_index][0:50])
-    results.append(past_results[list_index][50:100])
-    results.append(past_results[list_index][100:150])
-    langs = past_results[list_index][150:]
-    langs_list = langs.split(",")
-    langs_list[-1] = langs_list[-1].strip()
-    results.append(langs_list)
-
-    display_info.config(state="normal")
-    display_info.delete(0.0, END)
-
-    for i in range(3):
-        display_info.insert(END, results[i])
+    write_to_textbox(results)
     
-    display_info.insert(END, "Coding Languages: \n")
 
-    for i in results[-1]:
-        display_info.insert(END, f"\u2022 {i}\n")
+def count_entries(past_results):
+    count = 0
+    matches_criteria = []
+
+    criteria = get_info(True)
+
+    past_results = ""
+    with open(script_dir + "/submissions.txt", "r") as read_file:
+        past_results = read_file.read()
+        past_results = past_results.split("\n")
+
+    if past_results[-1] == "": del past_results[-1]#remove last item which should always be empty
+
+    results = process_submissions(past_results)
+    
+    DEFAULT_NAME = "Pick Your Title"
+    DEFAULT_AGE = "0"
+    DEFAULT_GENDER = ""
+    DEFAULT_LANG = []
+
+    #if the search criteria is default, ignore it
+    #if the search criteria matches the data save it and check the next one
+    print(criteria)
+
+    titles = ["Mr", "Mrs", "Ms", "Master", "Dr", "Sir", "Madame"]
+
+    if criteria[0] != DEFAULT_NAME and not criteria[0] in titles:#checks if criteria is a thing and if it is makes sure it starts with a title
+        change_status_label("If you enter a name you must enter a title!", "red")
+        return
+
+    if criteria[0].startswith(tuple(titles)) and len(criteria[0].split(" ")) == 1:
+        change_status_label("If you enter a title you must enter a name!", "red")
+        return
+
+    for i in results:
+        fits_criteria = False
+        if not criteria[0] == DEFAULT_NAME:
+            if i[0].strip() == criteria[0]: fits_criteria = True 
+            else: fits_criteria = False
+
+        if not criteria[1] == DEFAULT_AGE: 
+            if i[1].strip() == criteria[1]: fits_criteria = True
+            else: fits_criteria = False
+
+        if not criteria[2] == DEFAULT_GENDER:
+            if i[2].strip() == criteria[2]: fits_criteria = True
+            else: fits_criteria = False
+
+        if not criteria[3] == DEFAULT_LANG:
+            if i[3] == criteria[3]: fits_criteria = True
+            else: fits_criteria = False
+
+        if fits_criteria: 
+            matches_criteria.append(i)
+            count += 1
+    
+    change_count_label(count)
+
+    display_info.delete(0.0, END)
+    for i in matches_criteria:
+        display_info.config(state="normal")
+        if matches_criteria.index(i) == 0: display_info.insert(END, f"--Result {matches_criteria.index(i)}-- \n")
+        else: display_info.insert(END, f"\n--Result {matches_criteria.index(i)}-- \n")
+        display_info.config(state="disabled")
+        write_to_textbox(i, False)
 
 
-def change_status_label(text, colour):
+def change_status_label(text, colour):#change the text in the status label
     status_label.config(fg=colour)
     status_label.config(text=text)
     status_label.after(4000, lambda: status_label.config(text=""))
 
-def change_tracker_label(text, colour="black"):
+def change_tracker_label(text, colour="black"):#update the tracker label
     tracker_label.config(fg=colour)
     tracker_label.config(text=f"Current Result: {current_info_tracker}")
+
+def change_count_label(count):#update the entry count label
+    count_label.config(text=f"Count: {str(count)}")
 
 header_label = Label(window, text="Questionnaire", font="Calibri 16")
 header_label.grid(row=0, column=0, columnspan=3)
@@ -236,14 +338,13 @@ age_label.grid(row=3, column=0, sticky=W, padx=5, pady=5)
 max_age = (datetime.today().year) - (1903)
 
 age_range = IntVar()
-age_spin = Spinbox(window, textvariable=age_range, from_=1, to=max_age, width=21)
+age_spin = Spinbox(window, textvariable=age_range, from_=0, to=max_age, width=21)
 age_spin.grid(row=3, column=1, sticky=E, padx=5)
 
 gender_label = Label(window, text="Gender: ", font="Calibri 12")
 gender_label.grid(row=4, column=0, sticky=W, padx=5)
 
 gender_select = IntVar()
-
 gender_radio_button = Radiobutton(window, text="Male", variable=gender_select, value=1) 
 gender_radio_button.grid(row=4, column=1, sticky=W)
 gender_radio_button = Radiobutton(window, text="Female", variable=gender_select, value=2)
@@ -270,9 +371,8 @@ for i, j in enumerate(lang_list):
     if column == 2 and row > column_two_highest:
         column_two_highest = row
 
-
     lang_value_list.append(IntVar())
-    lang_checkbox = Checkbutton(window, text=j.split(",")[0], variable=lang_value_list[i])
+    lang_checkbox = Checkbutton(window, text=(j.split(",")[0]), variable=lang_value_list[i])
     lang_checkbox.grid(row=row, column=column, sticky=W, padx=(0, 20))
 
 n = 0#variable for tracking the highest row value
@@ -304,17 +404,16 @@ lang_value_list.append(IntVar())
 none_checkbox = Checkbutton(window, text="None", variable=lang_value_list[-1])
 none_checkbox.grid(row=none_row, column=none_column, sticky=W)
 
-
-submit_button = Button(window, text="Submit", command=lambda: submit_func(get_info()), bg="#87AE73")
+submit_button = Button(window, text="Submit", command=lambda: submit_func(get_info(False)), bg="#87AE73")
 submit_button.grid(row=n+1, column=0, sticky=W, padx=10, pady=10)
 
 save_button = Button(window, text="Save To File", command=save_button, bg="#87AE73")
 save_button.grid(row=n+1, column=1, sticky=W, )
 
-left_button = Button(window, text="❰", command=lambda: display_previous_results("left"), bg="#FDFD96")
+left_button = Button(window, text="❰", command=lambda: display_previous_results("left", get_submissions()), bg="#FDFD96")
 left_button.grid(row=n+2, column=0, sticky=W, padx=(10, 0))
 
-right_button = Button(window, text="❱", command=lambda: display_previous_results("right"), bg="#FDFD96")
+right_button = Button(window, text="❱", command=lambda: display_previous_results("right", get_submissions()), bg="#FDFD96")
 right_button.grid(row=n+2, column=0, padx=25, sticky=W)
 
 tracker_label = Label(window, text="Current Result: 0")
@@ -324,6 +423,13 @@ status_label = Label(window, text="")
 status_label.grid(row=n+3, column=0, columnspan=3)
 
 display_info = tkscrolled.ScrolledText(window, width=20, height=10, wrap=WORD, state="disabled")
-display_info.grid(row=n+4, column=0, columnspan=2, pady=(0, 10), sticky=W, padx=10)
+display_info.grid(row=n+4, column=0, columnspan=2, rowspan=2, pady=(0, 10), sticky=W, padx=10)
+
+#count controls
+count_button = Button(window, text="Count", bg="#87AE73", command=lambda: count_entries(get_submissions()))
+count_button.grid(row=n+4, column=2, sticky=W)
+
+count_label = Label(window, text="Count: 0")
+count_label.grid(row=n+5, column=2, sticky=NW)
 
 window.mainloop()
