@@ -228,16 +228,13 @@ def display_previous_results(direction, past_results):
             display_info.delete(0.0, END)
             display_info.config(state="disabled")
             if current_info_tracker == 1: change_tracker_label(f"Current Result: {current_info_tracker-1}")
+            current_info_tracker = 0
             return
         current_info_tracker -= 1
     
     results = get_submissions()[0]
 
-    print("results and tracker")
-    print(results)
-
     change_tracker_label(f"Current Result: {current_info_tracker}")
-    print("here")
     write_to_textbox(results)
     
 def count_entries():
@@ -259,7 +256,6 @@ def count_entries():
     DEFAULT_AGE = "0"
     DEFAULT_GENDER = ""
     DEFAULT_LANG = []
-
     #if the search criteria is default, ignore it
     #if the search criteria matches the data save it and check the next one
 

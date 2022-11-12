@@ -164,10 +164,11 @@ def display_previous_results(direction):
             return
         current_info_tracker += 1
     elif direction == "right":
-        if current_info_tracker <= 0:
+        if current_info_tracker-1 <= 0:
             change_status_label("No more results to display!", "red")
             display_info.delete(0.0, END)
-            change_tracker_label(f"Current Result: {current_info_tracker}")
+            if current_info_tracker == 1: change_tracker_label(f"Current Result: {current_info_tracker-1}")
+            current_info_tracker = 0
             return
         
         current_info_tracker -= 1
@@ -190,6 +191,8 @@ def display_previous_results(direction):
     langs_list[-1] = langs_list[-1].strip()
     results.append(langs_list)
 
+    print(results)
+
     display_info.config(state="normal")
     display_info.delete(0.0, END)
 
@@ -209,7 +212,7 @@ def change_status_label(text, colour):
 
 def change_tracker_label(text, colour="black"):
     tracker_label.config(fg=colour)
-    tracker_label.config(text=f"Current Result: {current_info_tracker}")
+    tracker_label.config(text=text)
 
 header_label = Label(window, text="Questionnaire", font="Calibri 16")
 header_label.grid(row=0, column=0, columnspan=3)
