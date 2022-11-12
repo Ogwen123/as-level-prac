@@ -155,7 +155,9 @@ def get_submissions():#a single functions to get previous submissions from the s
 
     past_results.reverse()
 
-    return [process_submissions(past_results[current_info_tracker-1]), len(past_results)]
+    processed_submissions = process_submissions(past_results)
+
+    return [processed_submissions[current_info_tracker-1], len(past_results), processed_submissions]
 
 
 def write_to_textbox(data, delete = True):
@@ -212,7 +214,6 @@ def save_button():
 def display_previous_results(direction, past_results):
     global current_info_tracker    
 
-    results = past_results[0][0]
     past_results_len = past_results[1]
 
     if direction == "left":
@@ -220,21 +221,26 @@ def display_previous_results(direction, past_results):
             change_status_label("No more results to display!", "red")
             return
         current_info_tracker += 1
-
     elif direction == "right":
         if current_info_tracker-1 <= 0:
             change_status_label("No more results to display!", "red")
+            display_info.config(state="normal")
             display_info.delete(0.0, END)
-            current_info_tracker -= 1
-            change_tracker_label(f"Current Result: {current_info_tracker}")
+            display_info.config(state="disabled")
+            if current_info_tracker == 1: change_tracker_label(f"Current Result: {current_info_tracker-1}")
             return
         current_info_tracker -= 1
+    
+    results = get_submissions()[0]
+
+    print("results and tracker")
+    print(results)
 
     change_tracker_label(f"Current Result: {current_info_tracker}")
+    print("here")
     write_to_textbox(results)
     
-
-def count_entries(past_results):
+def count_entries():
     count = 0
     matches_criteria = []
 
@@ -256,11 +262,10 @@ def count_entries(past_results):
 
     #if the search criteria is default, ignore it
     #if the search criteria matches the data save it and check the next one
-    print(criteria)
 
     titles = ["Mr", "Mrs", "Ms", "Master", "Dr", "Sir", "Madame"]
 
-    if criteria[0] != DEFAULT_NAME and not criteria[0] in titles:#checks if criteria is a thing and if it is makes sure it starts with a title
+    if criteria[0] != DEFAULT_NAME and not criteria[0].split(" ")[0] in titles:#checks if criteria is a thing and if it is makes sure it starts with a title
         change_status_label("If you enter a name you must enter a title!", "red")
         return
 
@@ -292,9 +297,10 @@ def count_entries(past_results):
     
     change_count_label(count)
 
-    display_info.delete(0.0, END)
     for i in matches_criteria:
         display_info.config(state="normal")
+        display_info.delete(0.0, END)
+
         if matches_criteria.index(i) == 0: display_info.insert(END, f"--Result {matches_criteria.index(i)}-- \n")
         else: display_info.insert(END, f"\n--Result {matches_criteria.index(i)}-- \n")
         display_info.config(state="disabled")
@@ -308,7 +314,7 @@ def change_status_label(text, colour):#change the text in the status label
 
 def change_tracker_label(text, colour="black"):#update the tracker label
     tracker_label.config(fg=colour)
-    tracker_label.config(text=f"Current Result: {current_info_tracker}")
+    tracker_label.config(text=text)
 
 def change_count_label(count):#update the entry count label
     count_label.config(text=f"Count: {str(count)}")
@@ -426,7 +432,7 @@ display_info = tkscrolled.ScrolledText(window, width=20, height=10, wrap=WORD, s
 display_info.grid(row=n+4, column=0, columnspan=2, rowspan=2, pady=(0, 10), sticky=W, padx=10)
 
 #count controls
-count_button = Button(window, text="Count", bg="#87AE73", command=lambda: count_entries(get_submissions()))
+count_button = Button(window, text="Count", bg="#87AE73", command=lambda: count_entries())
 count_button.grid(row=n+4, column=2, sticky=W)
 
 count_label = Label(window, text="Count: 0")
