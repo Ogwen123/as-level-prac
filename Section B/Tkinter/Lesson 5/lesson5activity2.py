@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import os
 from tkinter import ttk
+import copy
 
 window = Tk()
 window.title("Questionnaire")
@@ -25,11 +26,11 @@ lang_list = [#before the first comma is the coding langauge name, between the co
         ]
 
 
-def get_info(raw_data):#a single function to get all of the data from the inputs and return it as a list
+def get_info(raw_data=False, separate_name_and_title=False):#a single function to get all of the data from the inputs and return it as a list
     title = title_cb.get()#get data from title combobox
     name = name_entry.get().title()#get data from name entry
 
-    name = title + " " + name
+    if not separate_name_and_title: name = title + " " + name
 
     age = age_spin.get()#get data from age spinbox
     gender_var = gender_select.get()#get data from gender radio boxes
@@ -66,6 +67,7 @@ def get_info(raw_data):#a single function to get all of the data from the inputs
     name = name.strip()        
     #print(lang_choice_list)
     choices = []
+    if separate_name_and_title: choices.append(title)
     choices.append(name)
     choices.append(age)
     choices.append(gender)
@@ -185,7 +187,7 @@ def submit_func(choices):
 
 
 def save_button():
-    choices = get_info(False)
+    choices = get_info()
     submit_func(choices)
 
     if choices == "validation failed":
@@ -202,8 +204,6 @@ def save_button():
     formatted_langs = str_lang_list
 
     write_list = formatted_name + formatted_age + formatted_gender + formatted_langs + "\n"
-
-    print(write_list)
 
     with open(script_dir + "/submissions.txt", "a") as read_file:
         read_file.write(write_list)
@@ -241,7 +241,7 @@ def count_entries():
     count = 0
     matches_criteria = []
 
-    criteria = get_info(True)
+    criteria = get_info(True, True)
 
     past_results = ""
     with open(script_dir + "/submissions.txt", "r") as read_file:
@@ -252,56 +252,62 @@ def count_entries():
 
     results = process_submissions(past_results)
     
-    DEFAULT_NAME = "Pick Your Title"
+    DEFAULT_TITLE = "Pick Your Title"
+    DEFAULT_NAME = ""
     DEFAULT_AGE = "0"
     DEFAULT_GENDER = ""
     DEFAULT_LANG = []
     #if the search criteria is default, ignore it
     #if the search criteria matches the data save it and check the next one
-
     titles = ["Mr", "Mrs", "Ms", "Master", "Dr", "Sir", "Madame"]
-
-    if criteria[0] != DEFAULT_NAME and not criteria[0].split(" ")[0] in titles:#checks if criteria is a thing and if it is makes sure it starts with a title
-        change_status_label("If you enter a name you must enter a title!", "red")
-        return
-
-    if criteria[0].startswith(tuple(titles)) and len(criteria[0].split(" ")) == 1:
-        change_status_label("If you enter a title you must enter a name!", "red")
-        return
-
+    
+    #split the name string into name and title
     for i in results:
+        original_i = copy.deepcopy(i)
+
+        temp_title = i[0].split(" ")[0]
+        temp_name = " ".join(i[0].split(" ")[1:])
+
+        i.insert(0, temp_title)
+        i.insert(1, temp_name)
+
+        del i[2]#we want to remove the 3rd item because it the the title and name in the same string which we don't use
+
         fits_criteria = False
-        if not criteria[0] == DEFAULT_NAME:
+        if not criteria[0] == DEFAULT_TITLE:
             if i[0].strip() == criteria[0]: fits_criteria = True 
             else: fits_criteria = False
 
-        if not criteria[1] == DEFAULT_AGE: 
-            if i[1].strip() == criteria[1]: fits_criteria = True
+        if not criteria[1] == DEFAULT_NAME:
+            if i[1].strip() == criteria[1]: fits_criteria = True 
             else: fits_criteria = False
 
-        if not criteria[2] == DEFAULT_GENDER:
+        if not criteria[2] == DEFAULT_AGE: 
             if i[2].strip() == criteria[2]: fits_criteria = True
             else: fits_criteria = False
 
-        if not criteria[3] == DEFAULT_LANG:
-            if i[3] == criteria[3]: fits_criteria = True
+        if not criteria[3] == DEFAULT_GENDER:
+            if i[3].strip() == criteria[3]: fits_criteria = True
+            else: fits_criteria = False
+
+        if not criteria[4] == DEFAULT_LANG:
+            if i[4] == criteria[4]: fits_criteria = True
             else: fits_criteria = False
 
         if fits_criteria: 
-            matches_criteria.append(i)
+            matches_criteria.append(original_i)
             count += 1
     
     change_count_label(count)
 
+    display_info.config(state="normal")
+    display_info.delete(0.0, END)
+
     for i in matches_criteria:
         display_info.config(state="normal")
-        display_info.delete(0.0, END)
-
-        if matches_criteria.index(i) == 0: display_info.insert(END, f"--Result {matches_criteria.index(i)}-- \n")
-        else: display_info.insert(END, f"\n--Result {matches_criteria.index(i)}-- \n")
-        display_info.config(state="disabled")
+        display_info.insert(END, f"--Result {matches_criteria.index(i)}-- \n")
         write_to_textbox(i, False)
-
+    display_info.config(state="disabled")
 
 def change_status_label(text, colour):#change the text in the status label
     status_label.config(fg=colour)
@@ -406,7 +412,7 @@ lang_value_list.append(IntVar())
 none_checkbox = Checkbutton(window, text="None", variable=lang_value_list[-1])
 none_checkbox.grid(row=none_row, column=none_column, sticky=W)
 
-submit_button = Button(window, text="Submit", command=lambda: submit_func(get_info(False)), bg="#87AE73")
+submit_button = Button(window, text="Submit", command=lambda: submit_func(get_info()), bg="#87AE73")
 submit_button.grid(row=n+1, column=0, sticky=W, padx=10, pady=10)
 
 save_button = Button(window, text="Save To File", command=save_button, bg="#87AE73")
@@ -424,14 +430,14 @@ tracker_label.grid(row=n+2, column=1)
 status_label = Label(window, text="")
 status_label.grid(row=n+3, column=0, columnspan=3)
 
-display_info = tkscrolled.ScrolledText(window, width=20, height=10, wrap=WORD, state="disabled")
-display_info.grid(row=n+4, column=0, columnspan=2, rowspan=2, pady=(0, 10), sticky=W, padx=10)
+display_info = tkscrolled.ScrolledText(window, width=25, height=10, wrap=WORD, state="disabled")
+display_info.grid(row=n+4, column=0, columnspan=3, rowspan=2, pady=(0, 10), sticky=W, padx=10)
 
 #count controls
 count_button = Button(window, text="Count", bg="#87AE73", command=lambda: count_entries())
-count_button.grid(row=n+4, column=2, sticky=W)
+count_button.grid(row=n+4, column=2, padx=14, sticky=SE)
 
 count_label = Label(window, text="Count: 0")
-count_label.grid(row=n+5, column=2, sticky=NW)
+count_label.grid(row=n+5, column=2, padx=10, sticky=E)
 
 window.mainloop()
