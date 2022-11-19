@@ -1,7 +1,7 @@
 [
     {
         "name": "ALU",
-        "text": "The ALU is the Arithmetic Logic Unit. It is the part of the cpu that handles mathematic and logical operations. It is the part that does the execute stage of the fetch-decode-execute cycle. Test\n\n\n"
+        "text": "The ALU is the Arithmetic Logic Unit. It is the part of the cpu that handles mathematic and logical operations. It is the part that does the execute stage of the fetch-decode-execute cycle.\n\n\n\n"
     },
     {
         "name": "Cache",
